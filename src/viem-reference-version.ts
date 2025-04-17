@@ -8,6 +8,10 @@ import {
 } from 'viem'
 import { InvalidAddressError } from './types'
 
+/**
+ * @deprecated This function is deprecated and should only be used to validate and compare
+ * its functionality to getDataSuffix in index.ts. Do not use this function in production code.
+ */
 export function getDataSuffix(
   consumer: `0x${string}`,
   providers: `0x${string}`[],
