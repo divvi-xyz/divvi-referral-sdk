@@ -20,14 +20,14 @@ import { writeContract } from 'viem';
 
 // Example contract call with referral data
 const result = await writeContract({
-	address: contractAddress,
-	abi: contractABI,
-	functionName: 'yourFunction',
-	args: [...yourArgs],
-	dataSuffix: getDataSuffix(
-		consumerAddress, // The address of the consumer making the call
-		providerAddresses // Array of provider addresses involved in the referral
-	),
+  address: contractAddress,
+  abi: contractABI,
+  functionName: 'yourFunction',
+  args: [...yourArgs],
+  dataSuffix: getDataSuffix(
+    consumerAddress, // The address of the consumer making the call
+    providerAddresses // Array of provider addresses involved in the referral
+  ),
 });
 ```
 
@@ -39,15 +39,15 @@ import { sendTransaction } from 'viem';
 
 // Example transaction with referral data
 const result = await sendTransaction({
-	to: contractAddress,
-	data:
-		contractData +
-		getDataSuffix(
-			consumerAddress, // The address of the consumer making the call
-			providerAddresses // Array of provider addresses involved in the referral
-		),
-	value: transactionValue,
-	// ... other transaction parameters
+  to: contractAddress,
+  data:
+    contractData +
+    getDataSuffix(
+      consumerAddress, // The address of the consumer making the call
+      providerAddresses // Array of provider addresses involved in the referral
+    ),
+  value: transactionValue,
+  // ... other transaction parameters
 });
 ```
 
