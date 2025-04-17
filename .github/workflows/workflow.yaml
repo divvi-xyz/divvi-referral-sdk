@@ -31,7 +31,7 @@ jobs:
           node-version-file: 'package.json'
           check-latest: true
       - run: yarn
-      - run: yarn typecheck
+      - run: yarn build
       - run: yarn format:check
       - run: yarn lint
   knip:
@@ -55,52 +55,4 @@ jobs:
           node-version-file: 'package.json'
           check-latest: true
       - run: yarn
-      - run: yarn test:ci
-      # - name: Upload Coverage Report
-      #   uses: actions/upload-artifact@v3
-      #   with:
-      #     path: coverage/lcov-report
-      # - name: 'Upload coverage to Codecov'
-      #   uses: codecov/codecov-action@v3
-  deploy:
-    name: Deploy
-    if: github.ref == 'refs/heads/main'
-    needs:
-      - lint
-      - knip
-      - test
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
-      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
-        with:
-          node-version-file: 'package.json'
-          check-latest: true
-      # Repo needs to be given access to the MAINNET_SERVICE_ACCOUNT_KEY secret to access the slack webhook
-      # https://github.com/organizations/valora-inc/settings/secrets/actions/MAINNET_SERVICE_ACCOUNT_KEY
-      - uses: google-github-actions/auth@71f986410dfbc7added4569d411d040a91dc6935 # v2.1.8
-        with:
-          project_id: celo-mobile-mainnet
-          credentials_json: ${{ secrets.MAINNET_SERVICE_ACCOUNT_KEY }}
-      - name: Fetch Secrets
-        id: slack-webhook
-        uses: google-github-actions/get-secretmanager-secrets@a8440875e1c2892062aef9061228d4f1af8f919b # v2.2.3
-        with:
-          # This can point to any slack webhook URL stored in GC Secret Manager
-          secrets: |-
-            SLACK_WEBHOOK_URL:projects/1027349420744/secrets/SLACK_ONCALL_WEBHOOK_URL
-      - run: yarn
-      - run: yarn deploy
-      - uses: ravsamhq/notify-slack-action@be814b201e233b2dc673608aa46e5447c8ab13f2 # 2.5.0
-        if: always()
-        with:
-          status: ${{ job.status }}
-          notification_title: '{workflow} has {status_message}'
-          message_format: '{emoji} *{workflow}* {status_message}. <{run_url}|View Run>'
-          footer: 'Repo: <{repo_url}|{repo}>'
-          notify_when: 'failure'
-          # Tag @supporthero on failures, can change to any slack group id
-          mention_groups: 'S0277QUM4KB'
-          mention_groups_when: 'failure'
-        env:
-          SLACK_WEBHOOK_URL: ${{ steps.slack-webhook.outputs.SLACK_WEBHOOK_URL }}
+      - run: yarn test
