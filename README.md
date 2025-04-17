@@ -15,18 +15,18 @@ The `getDataSuffix` function from `@divvi/referral-sdk` can be used to generate 
 ### Using getDataSuffix with viem's writeContract
 
 ```typescript
-import { getDataSuffix } from '@divvi/referral-sdk';
-import { writeContract } from 'viem';
+import { getDataSuffix } from "@divvi/referral-sdk";
+import { writeContract } from "viem";
 
 // Example contract call with referral data
 const result = await writeContract({
   address: contractAddress,
   abi: contractABI,
-  functionName: 'yourFunction',
+  functionName: "yourFunction",
   args: [...yourArgs],
   dataSuffix: getDataSuffix(
     consumerAddress, // The address of the consumer making the call
-    providerAddresses // Array of provider addresses involved in the referral
+    providerAddresses, // Array of provider addresses involved in the referral
   ),
 });
 ```
@@ -34,8 +34,8 @@ const result = await writeContract({
 ### Using getDataSuffix with viem's sendTransaction
 
 ```typescript
-import { getDataSuffix } from '@divvi/referral-sdk';
-import { sendTransaction } from 'viem';
+import { getDataSuffix } from "@divvi/referral-sdk";
+import { sendTransaction } from "viem";
 
 // Example transaction with referral data
 const result = await sendTransaction({
@@ -44,7 +44,7 @@ const result = await sendTransaction({
     contractData +
     getDataSuffix(
       consumerAddress, // The address of the consumer making the call
-      providerAddresses // Array of provider addresses involved in the referral
+      providerAddresses, // Array of provider addresses involved in the referral
     ),
   value: transactionValue,
   // ... other transaction parameters
