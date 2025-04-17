@@ -29,6 +29,7 @@
     "@typescript-eslint/eslint-plugin": "^5.57.1",
     "@typescript-eslint/parser": "^5.57.1",
     "@valora/eslint-config-typescript": "^1.1.19",
+    "@valora/prettier-config": "^0.0.1",
     "eslint": "^8.37.0",
     "eslint-config-prettier": "^9.1.0",
     "eslint-plugin-import": "^2.31.0",
@@ -44,5 +45,6 @@
     "typescript": "^5.0.3",
     "viem": "^2.27.2"
   },
+  "prettier": "@valora/prettier-config",
   "dependencies": {}
 }
