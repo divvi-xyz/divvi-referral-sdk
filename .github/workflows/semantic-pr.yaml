@@ -8,10 +8,6 @@ on:
       - edited
       - synchronize
 
-permissions:
-  contents: read
-  pull-requests: write
-
 jobs:
   semantic-pr-title:
     name: Semantic PR title
