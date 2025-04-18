@@ -18,9 +18,9 @@ export function getDataSuffix({
   providers = [],
   formatId = FormatID.Default,
 }: {
-  consumer: Address;
-  providers?: Address[];
-  formatId?: FormatID;
+  consumer: Address
+  providers?: Address[]
+  formatId?: FormatID
 }): string {
   // Compute the first 4 bytes of the function selector for "divvi"
   const magicPrefixBytes = keccak256(toBytes('divvi')).slice(2, 10) // remove "0x", take first 8 hex chars (4 bytes)
@@ -50,6 +50,7 @@ export function getDataSuffix({
   const lengthHex = totalLength.toString(16).padStart(8, '0') // uint32 as 8 hex chars
 
   // Construct appended data and final calldata
-  const appendedData = magicPrefixBytes + formatByte + encodedData.slice(2) + lengthHex
+  const appendedData =
+    magicPrefixBytes + formatByte + encodedData.slice(2) + lengthHex
   return appendedData
 }

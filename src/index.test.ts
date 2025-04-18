@@ -12,26 +12,26 @@ describe.each([
     const badAddress: Address = '0x1234'
     const goodAddress: Address = '0x1234567890123456789012345678901234567890'
 
-    expect(() => getCallDataSuffix({ consumer: goodAddress, providers: [badAddress] })).toThrow(
-      InvalidAddressError,
-    )
-    expect(() => getCallDataSuffix({ consumer: badAddress, providers: [goodAddress] })).toThrow(
-      InvalidAddressError,
-    )
-    expect(() => getCallDataSuffix({ consumer: badAddress, providers: [badAddress] })).toThrow(
-      InvalidAddressError,
-    )
-    expect(() => getCallDataSuffix({ consumer: goodAddress, providers: [goodAddress] })).not.toThrow()
+    expect(() =>
+      getCallDataSuffix({ consumer: goodAddress, providers: [badAddress] }),
+    ).toThrow(InvalidAddressError)
+    expect(() =>
+      getCallDataSuffix({ consumer: badAddress, providers: [goodAddress] }),
+    ).toThrow(InvalidAddressError)
+    expect(() =>
+      getCallDataSuffix({ consumer: badAddress, providers: [badAddress] }),
+    ).toThrow(InvalidAddressError)
+    expect(() =>
+      getCallDataSuffix({ consumer: goodAddress, providers: [goodAddress] }),
+    ).not.toThrow()
   })
 
   it(`[${name}] should throw if there is no consumer`, () => {
-    const providers: Address[] = [
-      '0x0987654321098765432109876543210987654321',
-    ]
+    const providers: Address[] = ['0x0987654321098765432109876543210987654321']
 
-    expect(() => getCallDataSuffix({ consumer: '' as Address, providers })).toThrow(
-      InvalidAddressError,
-    )
+    expect(() =>
+      getCallDataSuffix({ consumer: '' as Address, providers }),
+    ).toThrow(InvalidAddressError)
   })
 
   it(`[${name}] should generate correct calldata suffix with no providers`, () => {
@@ -71,9 +71,7 @@ describe.each([
 
   it(`[${name}] should generate correct calldata suffix with single provider`, () => {
     const consumer: Address = '0x1234567890123456789012345678901234567890'
-    const providers: Address[] = [
-      '0x0987654321098765432109876543210987654321',
-    ]
+    const providers: Address[] = ['0x0987654321098765432109876543210987654321']
 
     const result = getCallDataSuffix({ consumer, providers })
 
@@ -157,9 +155,7 @@ describe.each([
 
   it(`[${name}] should generate consistent output for same inputs`, () => {
     const consumer: Address = '0x1234567890123456789012345678901234567890'
-    const providers: Address[] = [
-      '0x0987654321098765432109876543210987654321',
-    ]
+    const providers: Address[] = ['0x0987654321098765432109876543210987654321']
 
     const result1 = getCallDataSuffix({ consumer, providers })
     const result2 = getCallDataSuffix({ consumer, providers })
@@ -169,9 +165,7 @@ describe.each([
 
   it(`[${name}] should use default format ID when not specified`, () => {
     const consumer: Address = '0x1234567890123456789012345678901234567890'
-    const providers: Address[] = [
-      '0x0987654321098765432109876543210987654321',
-    ]
+    const providers: Address[] = ['0x0987654321098765432109876543210987654321']
 
     const result = getCallDataSuffix({ consumer, providers })
 
@@ -182,14 +176,12 @@ describe.each([
 
   it(`[${name}] should use specified format ID when provided`, () => {
     const consumer: Address = '0x1234567890123456789012345678901234567890'
-    const providers: Address[] = [
-      '0x0987654321098765432109876543210987654321',
-    ]
+    const providers: Address[] = ['0x0987654321098765432109876543210987654321']
 
-    const result = getCallDataSuffix({ 
-      consumer, 
-      providers, 
-      formatId: FormatID.Default 
+    const result = getCallDataSuffix({
+      consumer,
+      providers,
+      formatId: FormatID.Default,
     })
 
     // The format byte should match the specified format
@@ -200,12 +192,12 @@ describe.each([
 
 describe('Implementation comparison', () => {
   const testCases: Array<{
-    name: string;
+    name: string
     input: {
-      consumer: Address;
-      providers: Address[];
-      formatId?: FormatID;
-    };
+      consumer: Address
+      providers: Address[]
+      formatId?: FormatID
+    }
   }> = [
     {
       name: 'empty providers array',
@@ -242,10 +234,13 @@ describe('Implementation comparison', () => {
     },
   ]
 
-  it.each(testCases)('should produce identical results for both implementations: $name', ({ input }) => {
-    const resultOriginal = getCallDataSuffixOriginal(input)
-    const resultViem = getCallDataSuffixViem(input)
-    
-    expect(resultOriginal).toBe(resultViem)
-  })
+  it.each(testCases)(
+    'should produce identical results for both implementations: $name',
+    ({ input }) => {
+      const resultOriginal = getCallDataSuffixOriginal(input)
+      const resultViem = getCallDataSuffixViem(input)
+
+      expect(resultOriginal).toBe(resultViem)
+    },
+  )
 })

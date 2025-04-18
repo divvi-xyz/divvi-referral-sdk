@@ -44,9 +44,9 @@ export function getDataSuffix({
   providers = [],
   formatId = FormatID.Default,
 }: {
-  consumer: Address;
-  providers?: Address[];
-  formatId?: FormatID;
+  consumer: Address
+  providers?: Address[]
+  formatId?: FormatID
 }): string {
   // Validate addresses
   if (!isValidAddress(consumer)) {
