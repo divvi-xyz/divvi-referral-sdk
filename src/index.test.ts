@@ -53,7 +53,7 @@ describe.each([
 
     // The last 8 characters should be the length of the data
     const length = result.slice(-8)
-    expect(length).toBe('00000069') // 8 (prefix) + 2 (format) + 96 (data) + 8 (length) = 105 bytes
+    expect(length).toBe('00000069')
 
     // The total length should be the length specified times 2 because every byte is 2 characters
     const expectedTotalLength = hexToNumber('0x00000069') * 2
@@ -88,7 +88,7 @@ describe.each([
 
     // The last 8 characters should be the length of the data
     const length = result.slice(-8)
-    expect(length).toBe('00000089') // 8 (prefix) + 2 (format) + 128 (data) + 8 (length) = 137 bytes
+    expect(length).toBe('00000089')
 
     // The total length should be the length specified times 2 because every byte is 2 characters
     const expectedTotalLength = hexToNumber('0x00000089') * 2
@@ -127,7 +127,7 @@ describe.each([
 
     // The last 8 characters should be the length of the data
     const length = result.slice(-8)
-    expect(length).toBe('000000c9') // 8 (prefix) + 2 (format) + 192 (data) + 8 (length) = 201 bytes
+    expect(length).toBe('000000c9')
 
     // The total length should be the length specified times 2 because every byte is 2 characters
     const expectedTotalLength = hexToNumber('0x000000c9') * 2
