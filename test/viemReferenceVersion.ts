@@ -6,8 +6,8 @@ import {
   hexToBytes,
   isAddress,
 } from 'viem'
-import { FormatID, InvalidAddressError, Address } from './types'
-import { FORMAT_ID_BYTES } from './constants'
+import { FormatID, InvalidAddressError, Address } from '../src/types'
+import { FORMAT_ID_BYTES } from '../src/constants'
 
 /**
  * @deprecated This function is deprecated and should only be used to validate and compare

@@ -1,5 +1,5 @@
-import { DIVVI_MAGIC_PREFIX } from './constants'
-import { InvalidAddressError } from './types'
+import { DIVVI_MAGIC_PREFIX, FORMAT_ID_BYTES } from './constants'
+import { FormatID, InvalidAddressError, Address } from './types'
 
 // Helper function to validate Ethereum addresses
 function isValidAddress(address: string): boolean {
@@ -33,14 +33,21 @@ function encodeAddressArray(addresses: string[]): string {
 /**
  * Generates the calldata suffix for the Divvi referral system.
  *
- * @param consumer - The consumer address.
- * @param providers - An array of provider addresses.
+ * @param params - The parameters for generating the calldata suffix.
+ * @param params.consumer - The consumer address.
+ * @param params.providers - An array of provider addresses. Defaults to an empty array.
+ * @param params.formatId - The format identifier for encoding. Defaults to FormatID.Default.
  * @returns The calldata suffix as a hex string.
  */
-export function getDataSuffix(
-  consumer: `0x${string}`,
-  providers: `0x${string}`[],
-): string {
+export function getDataSuffix({
+  consumer,
+  providers = [],
+  formatId = FormatID.Default,
+}: {
+  consumer: Address;
+  providers?: Address[];
+  formatId?: FormatID;
+}): string {
   // Validate addresses
   if (!isValidAddress(consumer)) {
     throw new InvalidAddressError({ address: consumer })
@@ -58,9 +65,12 @@ export function getDataSuffix(
   const encodedBytes = encodedConsumer + encodedProviders
 
   // Calculate the total length of the data (in bytes)
-  const totalLength = (8 + encodedBytes.length + 8) / 2
+  const totalLength = (8 + 2 + encodedBytes.length + 8) / 2 // 8 for prefix, 2 for format byte, rest for data and length
   const lengthHex = totalLength.toString(16).padStart(8, '0')
 
+  // Get the format byte
+  const formatByte = FORMAT_ID_BYTES[formatId]
+
   // Combine all parts
-  return DIVVI_MAGIC_PREFIX + encodedBytes + lengthHex
+  return DIVVI_MAGIC_PREFIX + formatByte + encodedBytes + lengthHex
 }
