@@ -181,7 +181,6 @@ describe.each([
     const result = getCallDataSuffix({
       consumer,
       providers,
-      formatId: 'default',
     })
 
     // The format byte should match the specified format
