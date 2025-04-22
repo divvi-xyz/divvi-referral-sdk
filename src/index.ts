@@ -75,7 +75,7 @@ export function getDataSuffix({
 
 /**
  * Posts an attribution event to the tracking API
- * 
+ *
  * @param params - The parameters for the attribution event
  * @param params.txHash - The transaction hash
  * @param params.chainId - The chain ID
@@ -108,5 +108,3 @@ export async function postAttributionEvent({
 
   return response
 }
-
-

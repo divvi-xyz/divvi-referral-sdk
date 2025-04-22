@@ -38,7 +38,7 @@ import { mainnet } from 'viem/chains'
 // Step 1: Create a wallet client and get the account
 export const walletClient = createWalletClient({
   chain: mainnet,
-  transport: custom(window.ethereum)
+  transport: custom(window.ethereum),
 })
 const [account] = await walletClient.getAddresses()
 
@@ -74,7 +74,7 @@ import { mainnet } from 'viem/chains'
 
 const walletClient = createWalletClient({
   chain: mainnet,
-  transport: custom(window.ethereum)
+  transport: custom(window.ethereum),
 })
 const [account] = await walletClient.getAddresses()
 

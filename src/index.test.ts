@@ -1,5 +1,8 @@
 import { decodeAbiParameters, hexToNumber } from 'viem'
-import { getDataSuffix as getCallDataSuffixOriginal, postAttributionEvent } from '.'
+import {
+  getDataSuffix as getCallDataSuffixOriginal,
+  postAttributionEvent,
+} from '.'
 import { getDataSuffix as getCallDataSuffixViem } from '../test/viemReferenceVersion'
 import { InvalidAddressError, Address } from './types'
 import { DIVVI_MAGIC_PREFIX, FORMAT_ID_BYTES } from './constants'
@@ -238,33 +241,33 @@ describe('Implementation comparison', () => {
 describe('postAttributionEvent', () => {
   // Mock fetch before each test
   let originalFetch: typeof global.fetch
-  
+
   beforeEach(() => {
     originalFetch = global.fetch
     global.fetch = jest.fn()
   })
-  
+
   afterEach(() => {
     global.fetch = originalFetch
   })
-  
+
   it('should make a POST request with the correct parameters', async () => {
     // Arrange
     const mockResponse = new Response(JSON.stringify({ success: true }), {
       status: 200,
       headers: { 'Content-Type': 'application/json' },
     })
-    
-    ;(global.fetch as jest.Mock).mockResolvedValueOnce(mockResponse)
-    
+
+    jest.mocked(global.fetch).mockResolvedValueOnce(mockResponse)
+
     const params = {
       txHash: '0x1234567890123456789012345678901234567890' as Address,
       chainId: 1,
     }
-    
+
     // Act
     const response = await postAttributionEvent(params)
-    
+
     // Assert
     expect(global.fetch).toHaveBeenCalledWith(
       'https://api.mainnet.valora.xyz/trackRegistrationEvent',
@@ -277,66 +280,66 @@ describe('postAttributionEvent', () => {
           txHash: params.txHash,
           chainId: params.chainId,
         }),
-      }
+      },
     )
     expect(response).toBe(mockResponse)
   })
-  
+
   it('should use a custom baseUrl when provided', async () => {
     // Arrange
     const mockResponse = new Response(JSON.stringify({ success: true }), {
       status: 200,
       headers: { 'Content-Type': 'application/json' },
     })
-    
-    ;(global.fetch as jest.Mock).mockResolvedValueOnce(mockResponse)
-    
+
+    jest.mocked(global.fetch).mockResolvedValueOnce(mockResponse)
+
     const params = {
       txHash: '0x1234567890123456789012345678901234567890' as Address,
       chainId: 1,
       baseUrl: 'https://custom-api.example.com/track',
     }
-    
+
     // Act
     await postAttributionEvent(params)
-    
+
     // Assert
     expect(global.fetch).toHaveBeenCalledWith(
       'https://custom-api.example.com/track',
-      expect.any(Object)
+      expect.any(Object),
     )
   })
-  
+
   it('should throw an error when the API response is not ok', async () => {
     // Arrange
     const mockResponse = new Response('Bad Request', {
       status: 400,
       statusText: 'Bad Request',
     })
-    
-    ;(global.fetch as jest.Mock).mockResolvedValueOnce(mockResponse)
-    
+
+    jest.mocked(global.fetch).mockResolvedValueOnce(mockResponse)
+
     const params = {
       txHash: '0x1234567890123456789012345678901234567890' as Address,
       chainId: 1,
     }
-    
+
     // Act & Assert
     await expect(postAttributionEvent(params)).rejects.toThrow(
-      'Failed to post attribution event: Bad Request'
+      'Failed to post attribution event: Bad Request',
     )
   })
-  
+
   it('should throw an error when the fetch operation fails', async () => {
     // Arrange
     const networkError = new Error('Network error')
-    ;(global.fetch as jest.Mock).mockRejectedValueOnce(networkError)
-    
+    jest.mocked(global.fetch).mockRejectedValueOnce(networkError)
+
     const params = {
       txHash: '0x1234567890123456789012345678901234567890' as Address,
       chainId: 1,
     }
-    
+
     // Act & Assert
     await expect(postAttributionEvent(params)).rejects.toThrow('Network error')
   })
