@@ -8,7 +8,8 @@
     "dist"
   ],
   "scripts": {
-    "build": "tsc -p tsconfig.build.json",
+    "build": "tsc",
+    "typecheck": "yarn build",
     "test": "jest",
     "lint": "eslint src --ext .ts",
     "format": "prettier --write .",

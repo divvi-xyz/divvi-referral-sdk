@@ -6,7 +6,7 @@ import {
   hexToBytes,
   isAddress,
 } from 'viem'
-import { FormatID, InvalidAddressError, Address } from '../src/types'
+import { InvalidAddressError, Address } from '../src/types'
 import { FORMAT_ID_BYTES } from '../src/constants'
 
 /**
@@ -16,11 +16,9 @@ import { FORMAT_ID_BYTES } from '../src/constants'
 export function getDataSuffix({
   consumer,
   providers = [],
-  formatId = FormatID.Default,
 }: {
   consumer: Address
   providers?: Address[]
-  formatId?: FormatID
 }): string {
   // Compute the first 4 bytes of the function selector for "divvi"
   const magicPrefixBytes = keccak256(toBytes('divvi')).slice(2, 10) // remove "0x", take first 8 hex chars (4 bytes)
@@ -42,7 +40,7 @@ export function getDataSuffix({
   )
 
   // Get the format byte
-  const formatByte = FORMAT_ID_BYTES[formatId]
+  const formatByte = FORMAT_ID_BYTES['default']
 
   // Calculate total length
   const encodedBytes = hexToBytes(encodedData)

@@ -1,7 +1,7 @@
 import { decodeAbiParameters, hexToNumber } from 'viem'
 import { getDataSuffix as getCallDataSuffixOriginal, postAttributionEvent } from '.'
 import { getDataSuffix as getCallDataSuffixViem } from '../test/viemReferenceVersion'
-import { FormatID, InvalidAddressError, Address } from './types'
+import { InvalidAddressError, Address } from './types'
 import { DIVVI_MAGIC_PREFIX, FORMAT_ID_BYTES } from './constants'
 
 describe.each([
@@ -49,7 +49,7 @@ describe.each([
 
     // The format byte should be next
     const formatByte = result.slice(8, 10)
-    expect(formatByte).toBe(FORMAT_ID_BYTES[FormatID.Default])
+    expect(formatByte).toBe(FORMAT_ID_BYTES['default'])
 
     // The last 8 characters should be the length of the data
     const length = result.slice(-8)
@@ -84,7 +84,7 @@ describe.each([
 
     // The format byte should be next
     const formatByte = result.slice(8, 10)
-    expect(formatByte).toBe(FORMAT_ID_BYTES[FormatID.Default])
+    expect(formatByte).toBe(FORMAT_ID_BYTES['default'])
 
     // The last 8 characters should be the length of the data
     const length = result.slice(-8)
@@ -123,7 +123,7 @@ describe.each([
 
     // The format byte should be next
     const formatByte = result.slice(8, 10)
-    expect(formatByte).toBe(FORMAT_ID_BYTES[FormatID.Default])
+    expect(formatByte).toBe(FORMAT_ID_BYTES['default'])
 
     // The last 8 characters should be the length of the data
     const length = result.slice(-8)
@@ -171,7 +171,7 @@ describe.each([
 
     // The format byte should be the default one
     const formatByte = result.slice(8, 10)
-    expect(formatByte).toBe(FORMAT_ID_BYTES[FormatID.Default])
+    expect(formatByte).toBe(FORMAT_ID_BYTES['default'])
   })
 
   it(`[${name}] should use specified format ID when provided`, () => {
@@ -181,12 +181,11 @@ describe.each([
     const result = getCallDataSuffix({
       consumer,
       providers,
-      formatId: FormatID.Default,
     })
 
     // The format byte should match the specified format
     const formatByte = result.slice(8, 10)
-    expect(formatByte).toBe(FORMAT_ID_BYTES[FormatID.Default])
+    expect(formatByte).toBe(FORMAT_ID_BYTES['default'])
   })
 })
 
@@ -196,7 +195,6 @@ describe('Implementation comparison', () => {
     input: {
       consumer: Address
       providers: Address[]
-      formatId?: FormatID
     }
   }> = [
     {
@@ -222,14 +220,6 @@ describe('Implementation comparison', () => {
           '0xabCDeF0123456789AbcdEf0123456789aBCDEF01',
           '0xfEdcBA9876543210FedCBa9876543210fEdCBa98',
         ],
-      },
-    },
-    {
-      name: 'with format ID',
-      input: {
-        consumer: '0x1234567890123456789012345678901234567890',
-        providers: ['0x0987654321098765432109876543210987654321'],
-        formatId: FormatID.Default,
       },
     },
   ]
