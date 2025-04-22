@@ -1,5 +1,5 @@
 import { DIVVI_MAGIC_PREFIX, FORMAT_ID_BYTES } from './constants'
-import { FormatID, InvalidAddressError, Address } from './types'
+import { InvalidAddressError, Address } from './types'
 
 // Helper function to validate Ethereum addresses
 function isValidAddress(address: string): boolean {
@@ -42,11 +42,9 @@ function encodeAddressArray(addresses: string[]): string {
 export function getDataSuffix({
   consumer,
   providers = [],
-  formatId = FormatID.Default,
 }: {
   consumer: Address
   providers?: Address[]
-  formatId?: FormatID
 }): string {
   // Validate addresses
   if (!isValidAddress(consumer)) {
@@ -69,7 +67,7 @@ export function getDataSuffix({
   const lengthHex = totalLength.toString(16).padStart(8, '0')
 
   // Get the format byte
-  const formatByte = FORMAT_ID_BYTES[formatId]
+  const formatByte = FORMAT_ID_BYTES['default']
 
   // Combine all parts
   return DIVVI_MAGIC_PREFIX + formatByte + encodedBytes + lengthHex
