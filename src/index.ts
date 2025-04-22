@@ -74,3 +74,41 @@ export function getDataSuffix({
   // Combine all parts
   return DIVVI_MAGIC_PREFIX + formatByte + encodedBytes + lengthHex
 }
+
+/**
+ * Posts an attribution event to the tracking API
+ * 
+ * @param params - The parameters for the attribution event
+ * @param params.txHash - The transaction hash
+ * @param params.chainId - The chain ID
+ * @param params.baseUrl - The base URL for the API endpoint (optional)
+ * @returns A promise that resolves to the response from the API
+ */
+export async function postAttributionEvent({
+  txHash,
+  chainId,
+  baseUrl = 'https://api.mainnet.valora.xyz/trackRegistrationEvent',
+}: {
+  txHash: Address
+  chainId: number
+  baseUrl?: string
+}): Promise<Response> {
+  const response = await fetch(baseUrl, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({
+      txHash,
+      chainId,
+    }),
+  })
+
+  if (!response.ok) {
+    throw new Error(`Failed to post attribution event: ${response.statusText}`)
+  }
+
+  return response
+}
+
+
