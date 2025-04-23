@@ -1,8 +1,5 @@
 import { decodeAbiParameters, hexToNumber } from 'viem'
-import {
-  getDataSuffix as getCallDataSuffixOriginal,
-  postAttributionEvent,
-} from '.'
+import { getDataSuffix as getCallDataSuffixOriginal, submitReferral } from '.'
 import { getDataSuffix as getCallDataSuffixViem } from '../test/viemReferenceVersion'
 import { InvalidAddressError, Address } from './types'
 import { DIVVI_MAGIC_PREFIX, FORMAT_ID_BYTES } from './constants'
@@ -238,7 +235,7 @@ describe('Implementation comparison', () => {
   )
 })
 
-describe('postAttributionEvent', () => {
+describe('submitReferral', () => {
   // Mock fetch before each test
   let originalFetch: typeof global.fetch
 
@@ -261,12 +258,12 @@ describe('postAttributionEvent', () => {
     jest.mocked(global.fetch).mockResolvedValueOnce(mockResponse)
 
     const params = {
-      txHash: '0x1234567890123456789012345678901234567890' as Address,
+      txHash: '0x1234567890123456789012345678901234567890',
       chainId: 1,
-    }
+    } as const
 
     // Act
-    const response = await postAttributionEvent(params)
+    const response = await submitReferral(params)
 
     // Assert
     expect(global.fetch).toHaveBeenCalledWith(
@@ -295,13 +292,13 @@ describe('postAttributionEvent', () => {
     jest.mocked(global.fetch).mockResolvedValueOnce(mockResponse)
 
     const params = {
-      txHash: '0x1234567890123456789012345678901234567890' as Address,
+      txHash: '0x1234567890123456789012345678901234567890',
       chainId: 1,
       baseUrl: 'https://custom-api.example.com/track',
-    }
+    } as const
 
     // Act
-    await postAttributionEvent(params)
+    await submitReferral(params)
 
     // Assert
     expect(global.fetch).toHaveBeenCalledWith(
@@ -320,13 +317,53 @@ describe('postAttributionEvent', () => {
     jest.mocked(global.fetch).mockResolvedValueOnce(mockResponse)
 
     const params = {
-      txHash: '0x1234567890123456789012345678901234567890' as Address,
+      txHash: '0x1234567890123456789012345678901234567890',
       chainId: 1,
-    }
+    } as const
 
     // Act & Assert
-    await expect(postAttributionEvent(params)).rejects.toThrow(
-      'Failed to post attribution event: Bad Request',
+    await expect(submitReferral(params)).rejects.toThrow(
+      'Client error: 400 Bad Request',
+    )
+  })
+
+  it('should throw a client error with specific message for 4xx responses', async () => {
+    // Arrange
+    const mockResponse = new Response('Not Found', {
+      status: 404,
+      statusText: 'Not Found',
+    })
+
+    jest.mocked(global.fetch).mockResolvedValueOnce(mockResponse)
+
+    const params = {
+      txHash: '0x1234567890123456789012345678901234567890',
+      chainId: 1,
+    } as const
+
+    // Act & Assert
+    await expect(submitReferral(params)).rejects.toThrow(
+      'Client error: 404 Not Found',
+    )
+  })
+
+  it('should throw a server error with retry message for 5xx responses', async () => {
+    // Arrange
+    const mockResponse = new Response('Internal Server Error', {
+      status: 500,
+      statusText: 'Internal Server Error',
+    })
+
+    jest.mocked(global.fetch).mockResolvedValueOnce(mockResponse)
+
+    const params = {
+      txHash: '0x1234567890123456789012345678901234567890',
+      chainId: 1,
+    } as const
+
+    // Act & Assert
+    await expect(submitReferral(params)).rejects.toThrow(
+      'Server error: Failed to submit referral event: Internal Server Error. Client should retry the request.',
     )
   })
 
@@ -336,11 +373,11 @@ describe('postAttributionEvent', () => {
     jest.mocked(global.fetch).mockRejectedValueOnce(networkError)
 
     const params = {
-      txHash: '0x1234567890123456789012345678901234567890' as Address,
+      txHash: '0x1234567890123456789012345678901234567890',
       chainId: 1,
-    }
+    } as const
 
     // Act & Assert
-    await expect(postAttributionEvent(params)).rejects.toThrow('Network error')
+    await expect(submitReferral(params)).rejects.toThrow('Network error')
   })
 })

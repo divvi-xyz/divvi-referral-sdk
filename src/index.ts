@@ -81,8 +81,10 @@ export function getDataSuffix({
  * @param params.chainId - The chain ID
  * @param params.baseUrl - The base URL for the API endpoint (optional)
  * @returns A promise that resolves to the response from the API
+ * @throws {Error} Client error (4xx) - When the request fails due to client-side issues
+ * @throws {Error} Server error (5xx) - When the request fails due to server-side issues, client should retry the request
  */
-export async function postAttributionEvent({
+export async function submitReferral({
   txHash,
   chainId,
   baseUrl = 'https://api.mainnet.valora.xyz/trackRegistrationEvent',
@@ -103,7 +105,14 @@ export async function postAttributionEvent({
   })
 
   if (!response.ok) {
-    throw new Error(`Failed to post attribution event: ${response.statusText}`)
+    // Handle 4xx client errors
+    if (response.status >= 400 && response.status < 500) {
+      throw new Error(`Client error: ${response.status} ${response.statusText}`)
+    }
+    // Handle all other errors (5xx server errors, etc.)
+    throw new Error(
+      `Server error: Failed to submit referral event: ${response.statusText}. Client should retry the request.`,
+    )
   }
 
   return response

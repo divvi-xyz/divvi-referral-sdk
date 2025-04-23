@@ -19,19 +19,19 @@ yarn add @divvi/referral-sdk
 The SDK provides two main functions:
 
 1. `getDataSuffix` - Generates a hex string tag to append to transaction calldata for tracking referrals.
-2. `postAttributionEvent` - Reports the transaction to the attribution tracking API
+2. `submitReferral` - Reports the transaction to the attribution tracking API
 
 ### Complete Referral Flow
 
 - Identify an appropriate transaction in your codebase to append the dataSuffix
   - The transaction must be a state changing function like transfer
   - The transaction should be towards the beginning of the user journey
-- Append the dataSuffix to your transaction and call postAttributionEvent with the transaction hash
+- Append the dataSuffix to your transaction and call submitReferral with the transaction hash
 
 Here's how to implement the complete referral flow in your application:
 
 ```typescript
-import { getDataSuffix, postAttributionEvent } from '@divvi/referral-sdk'
+import { getDataSuffix, submitReferral } from '@divvi/referral-sdk'
 import { createWalletClient, custom } from 'viem'
 import { mainnet } from 'viem/chains'
 
@@ -59,7 +59,7 @@ const txHash = await walletClient.writeContract({
 const chainId = await walletClient.getChainId()
 
 // Step 4: Report the transaction to the attribution tracking API
-await postAttributionEvent({
+await submitReferral({
   txHash,
   chainId,
 })
@@ -68,7 +68,7 @@ await postAttributionEvent({
 ### Using getDataSuffix with viem's sendTransaction
 
 ```typescript
-import { getDataSuffix, postAttributionEvent } from '@divvi/referral-sdk'
+import { getDataSuffix, submitReferral } from '@divvi/referral-sdk'
 import { createWalletClient, custom } from 'viem'
 import { mainnet } from 'viem/chains'
 
@@ -93,13 +93,13 @@ const txHash = await walletClient.sendTransaction({
 })
 ```
 
-### Using postAttributionEvent
+### Using submitReferral
 
 ```typescript
-import { postAttributionEvent } from '@divvi/referral-sdk'
+import { submitReferral } from '@divvi/referral-sdk'
 
 // Report transaction for attribution tracking
-await postAttributionEvent({
+await submitReferral({
   txHash, // Transaction hash from writeContract or sendTransaction
   chainId, // Chain ID from your client
   // Optional: custom API endpoint
