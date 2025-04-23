@@ -1,5 +1,5 @@
 import { decodeAbiParameters, hexToNumber } from 'viem'
-import { getDataSuffix as getCallDataSuffixOriginal } from '.'
+import { getDataSuffix as getCallDataSuffixOriginal, submitReferral } from '.'
 import { getDataSuffix as getCallDataSuffixViem } from '../test/viemReferenceVersion'
 import { InvalidAddressError, Address } from './types'
 import { DIVVI_MAGIC_PREFIX, FORMAT_ID_BYTES } from './constants'
@@ -233,4 +233,151 @@ describe('Implementation comparison', () => {
       expect(resultOriginal).toBe(resultViem)
     },
   )
+})
+
+describe('submitReferral', () => {
+  // Mock fetch before each test
+  let originalFetch: typeof global.fetch
+
+  beforeEach(() => {
+    originalFetch = global.fetch
+    global.fetch = jest.fn()
+  })
+
+  afterEach(() => {
+    global.fetch = originalFetch
+  })
+
+  it('should make a POST request with the correct parameters', async () => {
+    // Arrange
+    const mockResponse = new Response(JSON.stringify({ success: true }), {
+      status: 200,
+      headers: { 'Content-Type': 'application/json' },
+    })
+
+    jest.mocked(global.fetch).mockResolvedValueOnce(mockResponse)
+
+    const params = {
+      txHash: '0x1234567890123456789012345678901234567890',
+      chainId: 1,
+    } as const
+
+    // Act
+    const response = await submitReferral(params)
+
+    // Assert
+    expect(global.fetch).toHaveBeenCalledWith(
+      'https://api.mainnet.valora.xyz/trackRegistrationEvent',
+      {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          txHash: params.txHash,
+          chainId: params.chainId,
+        }),
+      },
+    )
+    expect(response).toBe(mockResponse)
+  })
+
+  it('should use a custom baseUrl when provided', async () => {
+    // Arrange
+    const mockResponse = new Response(JSON.stringify({ success: true }), {
+      status: 200,
+      headers: { 'Content-Type': 'application/json' },
+    })
+
+    jest.mocked(global.fetch).mockResolvedValueOnce(mockResponse)
+
+    const params = {
+      txHash: '0x1234567890123456789012345678901234567890',
+      chainId: 1,
+      baseUrl: 'https://custom-api.example.com/track',
+    } as const
+
+    // Act
+    await submitReferral(params)
+
+    // Assert
+    expect(global.fetch).toHaveBeenCalledWith(
+      'https://custom-api.example.com/track',
+      expect.any(Object),
+    )
+  })
+
+  it('should throw an error when the API response is not ok', async () => {
+    // Arrange
+    const mockResponse = new Response('Bad Request', {
+      status: 400,
+      statusText: 'Bad Request',
+    })
+
+    jest.mocked(global.fetch).mockResolvedValueOnce(mockResponse)
+
+    const params = {
+      txHash: '0x1234567890123456789012345678901234567890',
+      chainId: 1,
+    } as const
+
+    // Act & Assert
+    await expect(submitReferral(params)).rejects.toThrow(
+      'Client error: 400 Bad Request',
+    )
+  })
+
+  it('should throw a client error with specific message for 4xx responses', async () => {
+    // Arrange
+    const mockResponse = new Response('Not Found', {
+      status: 404,
+      statusText: 'Not Found',
+    })
+
+    jest.mocked(global.fetch).mockResolvedValueOnce(mockResponse)
+
+    const params = {
+      txHash: '0x1234567890123456789012345678901234567890',
+      chainId: 1,
+    } as const
+
+    // Act & Assert
+    await expect(submitReferral(params)).rejects.toThrow(
+      'Client error: 404 Not Found',
+    )
+  })
+
+  it('should throw a server error with retry message for 5xx responses', async () => {
+    // Arrange
+    const mockResponse = new Response('Internal Server Error', {
+      status: 500,
+      statusText: 'Internal Server Error',
+    })
+
+    jest.mocked(global.fetch).mockResolvedValueOnce(mockResponse)
+
+    const params = {
+      txHash: '0x1234567890123456789012345678901234567890',
+      chainId: 1,
+    } as const
+
+    // Act & Assert
+    await expect(submitReferral(params)).rejects.toThrow(
+      'Server error: Failed to submit referral event: Internal Server Error. Client should retry the request.',
+    )
+  })
+
+  it('should throw an error when the fetch operation fails', async () => {
+    // Arrange
+    const networkError = new Error('Network error')
+    jest.mocked(global.fetch).mockRejectedValueOnce(networkError)
+
+    const params = {
+      txHash: '0x1234567890123456789012345678901234567890',
+      chainId: 1,
+    } as const
+
+    // Act & Assert
+    await expect(submitReferral(params)).rejects.toThrow('Network error')
+  })
 })

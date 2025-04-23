@@ -15,7 +15,8 @@
     "format": "prettier --write .",
     "format:check": "prettier --check .",
     "prepare": "yarn build",
-    "knip": "knip"
+    "knip": "knip",
+    "test:all": "yarn typecheck && yarn lint && yarn test"
   },
   "keywords": [
     "divvi",

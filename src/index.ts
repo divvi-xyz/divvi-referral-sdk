@@ -72,3 +72,48 @@ export function getDataSuffix({
   // Combine all parts
   return DIVVI_MAGIC_PREFIX + formatByte + encodedBytes + lengthHex
 }
+
+/**
+ * Posts an attribution event to the tracking API
+ *
+ * @param params - The parameters for the attribution event
+ * @param params.txHash - The transaction hash
+ * @param params.chainId - The chain ID
+ * @param params.baseUrl - The base URL for the API endpoint (optional)
+ * @returns A promise that resolves to the response from the API
+ * @throws {Error} Client error (4xx) - When the request fails due to client-side issues
+ * @throws {Error} Server error (5xx) - When the request fails due to server-side issues, client should retry the request
+ */
+export async function submitReferral({
+  txHash,
+  chainId,
+  baseUrl = 'https://api.mainnet.valora.xyz/trackRegistrationEvent',
+}: {
+  txHash: Address
+  chainId: number
+  baseUrl?: string
+}): Promise<Response> {
+  const response = await fetch(baseUrl, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({
+      txHash,
+      chainId,
+    }),
+  })
+
+  if (!response.ok) {
+    // Handle 4xx client errors
+    if (response.status >= 400 && response.status < 500) {
+      throw new Error(`Client error: ${response.status} ${response.statusText}`)
+    }
+    // Handle all other errors (5xx server errors, etc.)
+    throw new Error(
+      `Server error: Failed to submit referral event: ${response.statusText}. Client should retry the request.`,
+    )
+  }
+
+  return response
+}
