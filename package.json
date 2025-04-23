@@ -1,15 +1,22 @@
 {
   "name": "@divvi/referral-sdk",
-  "version": "0.1.0",
+  "version": "0.0.1",
   "description": "SDK for managing referrals in the Divvi ecosystem",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "files": [
     "dist"
   ],
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    }
+  },
   "scripts": {
-    "build": "tsc",
-    "typecheck": "yarn build",
+    "clean": "rm -rf dist",
+    "build": "yarn clean && tsc -p tsconfig.build.json",
+    "typecheck": "tsc --noEmit",
     "test": "jest",
     "lint": "eslint src --ext .ts",
     "format": "prettier --write .",
