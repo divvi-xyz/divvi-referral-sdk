@@ -3,3 +3,6 @@ package.json
 
 # Ignore generated dist folder
 dist
+node_modules
+coverage
+.git
