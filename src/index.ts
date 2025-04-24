@@ -117,3 +117,6 @@ export async function submitReferral({
 
   return response
 }
+
+// Re-export only the types that are needed for the public API
+export { Address, InvalidAddressError } from './types'
