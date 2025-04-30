@@ -87,7 +87,7 @@ export function getDataSuffix({
 export async function submitReferral({
   txHash,
   chainId,
-  baseUrl = 'https://api.mainnet.valora.xyz/trackRegistrationEvent',
+  baseUrl = 'https://api.divvi.xyz/submitReferral',
 }: {
   txHash: Address
   chainId: number
@@ -107,7 +107,8 @@ export async function submitReferral({
   if (!response.ok) {
     // Handle 4xx client errors
     if (response.status >= 400 && response.status < 500) {
-      throw new Error(`Client error: ${response.status} ${response.statusText}`)
+      const errorResponse = await response.text()
+      throw new Error(`Client error: ${response.status} ${response.statusText} ${errorResponse}`)
     }
     // Handle all other errors (5xx server errors, etc.)
     throw new Error(

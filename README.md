@@ -49,10 +49,10 @@ const txHash = await walletClient.writeContract({
   abi: contractABI,
   functionName: 'yourFunction',
   args: [...yourArgs],
-  dataSuffix: getDataSuffix({
-    consumer: consumerAddress, // The address of the consumer making the call
-    providers: providerAddresses, // Array of provider addresses involved in the referral
-  }),
+  dataSuffix: `0x${getDataSuffix({
+    consumer: consumerAddress,
+    providers: providerAddresses,
+  })}`
 })
 
 // Step 3: Get the current chain ID
