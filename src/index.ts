@@ -108,7 +108,9 @@ export async function submitReferral({
     // Handle 4xx client errors
     if (response.status >= 400 && response.status < 500) {
       const errorResponse = await response.text()
-      throw new Error(`Client error: ${response.status} ${response.statusText} ${errorResponse}`)
+      throw new Error(
+        `Client error: ${response.status} ${response.statusText} ${errorResponse}`,
+      )
     }
     // Handle all other errors (5xx server errors, etc.)
     throw new Error(
