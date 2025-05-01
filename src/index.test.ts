@@ -267,7 +267,7 @@ describe('submitReferral', () => {
 
     // Assert
     expect(global.fetch).toHaveBeenCalledWith(
-      'https://api.mainnet.valora.xyz/trackRegistrationEvent',
+      'https://api.divvi.xyz/submitReferral',
       {
         method: 'POST',
         headers: {
