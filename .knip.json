@@ -1,5 +1,7 @@
 {
   "entry": ["src/index.ts"],
   "project": ["src/**/*.ts"],
-  "ignoreDependencies": []
+  "ignoreDependencies": [
+    "conventional-changelog-conventionalcommits"
+  ]
 }
