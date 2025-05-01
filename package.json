@@ -23,7 +23,8 @@
     "format:check": "prettier --check .",
     "prepare": "yarn build",
     "knip": "knip",
-    "test:all": "yarn typecheck && yarn lint && yarn test"
+    "test:all": "yarn typecheck && yarn lint && yarn test",
+    "release": "semantic-release"
   },
   "keywords": [
     "divvi",
@@ -47,10 +48,27 @@
     "jest": "^29.5.0",
     "knip": "^5.50.5",
     "prettier": "^3.5.3",
+    "semantic-release": "^24.2.3",
     "ts-jest": "^29.1.0",
     "typescript": "^5.0.3",
     "viem": "^2.27.2"
   },
   "prettier": "@valora/prettier-config",
-  "dependencies": {}
+  "release": {
+    "branches": [
+      "main"
+    ],
+    "preset": "conventionalcommits"
+  },
+  "directories": {
+    "test": "test"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/divvi-xyz/divvi-referral-sdk.git"
+  },
+  "bugs": {
+    "url": "https://github.com/divvi-xyz/divvi-referral-sdk/issues"
+  },
+  "homepage": "https://github.com/divvi-xyz/divvi-referral-sdk#readme"
 }
