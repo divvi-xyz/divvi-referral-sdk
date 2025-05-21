@@ -11,9 +11,28 @@ if (!process.env.PRIVATE_KEY) {
 const privateKey = process.env.PRIVATE_KEY as `0x${string}`
 
 // cUSD token contract address on CELO
-const CUSD_ADDRESS =
-  '0x765DE816845861e75A25fCA122bb6898B8B1282a' as `0x${string}`
+const CUSD_ADDRESS = '0x765DE816845861e75A25fCA122bb6898B8B1282a'
 
+// some consumer and providers in the staging contract that have a rewards agreement registered
+const STAGING_REWARDS_CONSUMER_PROVIDER_PAIRS: {
+  consumer: `0x${string}`
+  providers: `0x${string}`[]
+}[] = [
+  {
+    consumer: '0x544402f32c46a5c120e89421f15c8a21f77d6087',
+    providers: [
+      '0x34e6a195fbd090c0f2d2d3d326508a12e35d2c97',
+      '0xda7dfd01dd5cf31bc2d069f38b9f4e5bdcb8e199',
+      '0x89786bc94115984f5309c91a469ae25448bbdde9',
+      '0x096991d5fd06eaf1fcceaa5c59a951e964743dd8',
+      '0x266ca9f02e8395d7cc746cb6ec986c2e06c75a28',
+    ],
+  },
+  {
+    consumer: '0x644b896b0c45717215c0f10501b20fafd9bceb24',
+    providers: ['0x644b896b0c45717215c0f10501b20fafd9bceb24'],
+  },
+]
 async function main() {
   // Create wallet client
   const account = privateKeyToAccount(privateKey)
@@ -23,12 +42,9 @@ async function main() {
     transport: http(),
   })
 
-  // Get the consumer address (our wallet)
-  const consumerAddress = account.address
-
-  // Example provider address (this would be the referrer in a real scenario)
-  const providerAddress =
-    '0x14e5d43fA4Addbe4d8B352F16e6B7f33325070D1' as `0x${string}`
+  // Replace as necessary, the consumer and providers must have a rewards agreement registered
+  const consumerAddress = STAGING_REWARDS_CONSUMER_PROVIDER_PAIRS[0].consumer
+  const providerAddresses = STAGING_REWARDS_CONSUMER_PROVIDER_PAIRS[0].providers
 
   try {
     // Step 1: Send cUSD transaction with referral data
@@ -50,7 +66,7 @@ async function main() {
       args: [consumerAddress, parseUnits('0.001', 18)], // 0.001 cUSD
       dataSuffix: `0x${getDataSuffix({
         consumer: consumerAddress,
-        providers: [providerAddress],
+        providers: providerAddresses,
       })}`,
     })
 
@@ -63,6 +79,7 @@ async function main() {
     await submitReferral({
       txHash,
       chainId,
+      baseUrl: 'https://api.staging.divvi.xyz/submitReferral', // remove this if you want to use the production contract
     })
 
     console.log('Referral submitted successfully')
