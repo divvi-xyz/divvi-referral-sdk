@@ -1,5 +1,5 @@
 import { getDataSuffix, submitReferral } from '../src/index'
-import { createWalletClient, http, parseUnits } from 'viem'
+import { Address, createWalletClient, Hex, http, parseUnits } from 'viem'
 import { celo } from 'viem/chains'
 import { privateKeyToAccount } from 'viem/accounts'
 
@@ -8,15 +8,15 @@ if (!process.env.PRIVATE_KEY) {
   throw new Error('Please set PRIVATE_KEY environment variable')
 }
 
-const privateKey = process.env.PRIVATE_KEY as `0x${string}`
+const privateKey = process.env.PRIVATE_KEY as Hex
 
 // cUSD token contract address on CELO
 const CUSD_ADDRESS = '0x765DE816845861e75A25fCA122bb6898B8B1282a'
 
 // some consumer and providers in the staging contract that have a rewards agreement registered
 const STAGING_REWARDS_CONSUMER_PROVIDER_PAIRS: {
-  consumer: `0x${string}`
-  providers: `0x${string}`[]
+  consumer: Address
+  providers: Address[]
 }[] = [
   {
     consumer: '0x544402f32c46a5c120e89421f15c8a21f77d6087',
