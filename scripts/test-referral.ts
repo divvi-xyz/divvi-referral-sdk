@@ -1,5 +1,5 @@
-import { getDataSuffix, submitReferral } from '../src/index'
 import { Address, createWalletClient, Hex, http, parseUnits } from 'viem'
+import { getReferralTag, submitReferral } from '../src/index'
 import { celo } from 'viem/chains'
 import { privateKeyToAccount } from 'viem/accounts'
 
@@ -64,7 +64,8 @@ async function main() {
       ],
       functionName: 'transfer',
       args: [consumerAddress, parseUnits('0.001', 18)], // 0.001 cUSD
-      dataSuffix: `0x${getDataSuffix({
+      dataSuffix: `0x${getReferralTag({
+        user: account.address,
         consumer: consumerAddress,
         providers: providerAddresses,
       })}`,

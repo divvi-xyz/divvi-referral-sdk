@@ -1,4 +1,4 @@
-import { DIVVI_MAGIC_PREFIX, FORMAT_ID_BYTES } from './constants'
+import { DIVVI_MAGIC_PREFIX, REFERRAL_TAG_V2_FORMAT_BYTE } from './constants'
 import { InvalidAddressError, Address } from './types'
 
 // Helper function to validate Ethereum addresses
@@ -17,36 +17,50 @@ function encodeAddress(address: string): string {
 }
 
 // Helper function to encode an array of addresses
-function encodeAddressArray(addresses: string[]): string {
-  // First encode the length of each element of the array (64 characters is 32 bytes)
-  const addressLengthHex = (64).toString(16).padStart(64, '0')
+function encodeAddressArray(addresses: readonly string[]): string {
+  // Calculate the offset to where the array data starts
+  // This offset accounts for all static fields that come BEFORE this dynamic array:
+  // - encodedUser: 32 bytes
+  // - encodedConsumer: 32 bytes
+  // - providers array offset (this field): 32 bytes
+  // Total static data before array content: 3 × 32 = 96 bytes
+  //
+  // NOTE: When updating the ABI structure, update this calculation
+  const arrayDataOffsetHex = (96).toString(16).padStart(64, '0')
 
-  // Then encode the length of the array (32 bytes)
+  // Encode the length of the array (32 bytes)
   const arrayLengthHex = addresses.length.toString(16).padStart(64, '0')
 
-  // Then encode each address (32 bytes each)
+  // Encode each address (32 bytes each)
   const addressesHex = addresses.map((addr) => encodeAddress(addr)).join('')
 
-  return addressLengthHex + arrayLengthHex + addressesHex
+  return arrayDataOffsetHex + arrayLengthHex + addressesHex
 }
 
 /**
- * Generates the calldata suffix for the Divvi referral system.
+ * Generates the referral tag for the Divvi referral system.
  *
- * @param params - The parameters for generating the calldata suffix.
+ * @param params - The parameters for generating the referral tag.
+ * @param params.user - The user address that consented to the transaction. This is cryptographically verified on the backend to ensure accurate referral attribution.
  * @param params.consumer - The consumer address.
  * @param params.providers - An array of provider addresses. Defaults to an empty array.
- * @param params.formatId - The format identifier for encoding. Defaults to FormatID.Default.
- * @returns The calldata suffix as a hex string.
+ * @returns The referral tag as a hex string.
  */
-export function getDataSuffix({
+export function getReferralTag({
+  user,
   consumer,
   providers = [],
 }: {
+  user: Address
   consumer: Address
-  providers?: Address[]
+  providers?: readonly Address[]
 }): string {
   // Validate addresses
+
+  if (!isValidAddress(user)) {
+    throw new InvalidAddressError({ address: user })
+  }
+
   if (!isValidAddress(consumer)) {
     throw new InvalidAddressError({ address: consumer })
   }
@@ -58,19 +72,22 @@ export function getDataSuffix({
   }
 
   // Encode the data according to ABI encoding rules
+  const encodedUser = encodeAddress(user)
   const encodedConsumer = encodeAddress(consumer)
   const encodedProviders = encodeAddressArray(providers)
-  const encodedBytes = encodedConsumer + encodedProviders
+  const encodedBytes = encodedUser + encodedConsumer + encodedProviders
 
-  // Calculate the total length of the data (in bytes)
-  const totalLength = (8 + 2 + encodedBytes.length + 8) / 2 // 8 for prefix, 2 for format byte, rest for data and length
-  const lengthHex = totalLength.toString(16).padStart(8, '0')
-
-  // Get the format byte
-  const formatByte = FORMAT_ID_BYTES['default']
+  // Calculate the length of the payload (in bytes)
+  const payloadLength = encodedBytes.length / 2
+  const payloadLengthHex = payloadLength.toString(16).padStart(4, '0')
 
   // Combine all parts
-  return DIVVI_MAGIC_PREFIX + formatByte + encodedBytes + lengthHex
+  return (
+    DIVVI_MAGIC_PREFIX +
+    REFERRAL_TAG_V2_FORMAT_BYTE +
+    payloadLengthHex +
+    encodedBytes
+  )
 }
 
 /**

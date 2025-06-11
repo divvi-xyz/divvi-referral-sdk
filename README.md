@@ -18,20 +18,20 @@ yarn add @divvi/referral-sdk
 
 The SDK provides two main functions:
 
-1. `getDataSuffix` - Generates a hex string tag to append to transaction calldata for tracking referrals.
+1. `getReferralTag` - Generates a hex string tag to include in transaction calldata for tracking referrals (appending is recommended).
 2. `submitReferral` - Reports the transaction to the attribution tracking API
 
 ### Complete Referral Flow
 
-- Identify an appropriate transaction in your codebase to append the dataSuffix
+- Identify an appropriate transaction in your codebase to include the referral tag
   - The transaction must be a state changing function like transfer
   - The transaction should be towards the beginning of the user journey
-- Append the dataSuffix to your transaction and call submitReferral with the transaction hash
+- Include the referral tag in your transaction data (appending is recommended) and call submitReferral with the transaction hash
 
 Here's how to implement the complete referral flow in your application:
 
 ```typescript
-import { getDataSuffix, submitReferral } from '@divvi/referral-sdk'
+import { getReferralTag, submitReferral } from '@divvi/referral-sdk'
 import { createWalletClient, custom } from 'viem'
 import { mainnet } from 'viem/chains'
 
@@ -42,17 +42,18 @@ export const walletClient = createWalletClient({
 })
 const [account] = await walletClient.getAddresses()
 
-// Step 2: Execute an existing transaction within your codebase with the referral data suffix
+// Step 2: Execute an existing transaction within your codebase with the referral tag
 const txHash = await walletClient.writeContract({
   address: contractAddress,
   account,
   abi: contractABI,
   functionName: 'yourFunction',
   args: [...yourArgs],
-  dataSuffix: `0x${getDataSuffix({
+  dataSuffix: `0x${getReferralTag({
+    user: account, // The user address making the transaction (required)
     consumer: consumerAddress, // The address of the consumer making the call
     providers: providerAddresses, // Array of provider addresses involved in the referral
-  })}`,
+  })}`, // Using dataSuffix appends the tag (recommended)
 })
 
 // Step 3: Get the current chain ID
@@ -65,10 +66,10 @@ await submitReferral({
 })
 ```
 
-### Using getDataSuffix with viem's sendTransaction
+### Using getReferralTag with viem's sendTransaction
 
 ```typescript
-import { getDataSuffix, submitReferral } from '@divvi/referral-sdk'
+import { getReferralTag, submitReferral } from '@divvi/referral-sdk'
 import { createWalletClient, custom } from 'viem'
 import { mainnet } from 'viem/chains'
 
@@ -84,13 +85,18 @@ const txHash = await walletClient.sendTransaction({
   to: contractAddress,
   data:
     contractData +
-    getDataSuffix({
+    getReferralTag({
+      user: account, // The user address making the transaction (required)
       consumer: consumerAddress, // The address of the consumer making the call
       providers: providerAddresses, // Array of provider addresses involved in the referral
-    }),
+    }), // Appending to existing data (recommended)
   value: transactionValue,
   // ... other transaction parameters
 })
+
+// Alternative: You can also include the tag anywhere in the transaction data
+// const referralTag = getReferralTag({ user: account, consumer: consumerAddress, providers: providerAddresses })
+// data: someCustomData + referralTag + moreData
 ```
 
 ### Using submitReferral
@@ -104,6 +110,73 @@ await submitReferral({
   chainId, // Chain ID from your client
   // Optional: custom API endpoint
   // baseUrl: 'https://your-custom-endpoint.com'
+})
+```
+
+## Why the `user` Parameter Matters
+
+The `user` parameter is crucial because Divvi cryptographically verifies that the user you specify is actually the one who consented to the transaction. This prevents fake referrals and ensures accurate attribution.
+
+Here's how it works:
+
+**For regular wallets (EOAs):** We check that `user` matches who actually sent the transaction (`tx.from`).
+
+**For smart accounts:** We're smarter about verification and can handle more complex scenarios like Account Abstraction wallets or Safe multisigs. The system automatically detects the transaction type and applies the right verification method.
+
+This means you get **accurate referral tracking** regardless of whether your users have simple wallets or more advanced smart account setups. If you're using a custom smart account architecture and verification fails, reach out to us - we can add support for additional patterns as needed.
+
+**Bottom line:** Set the `user` parameter to the actual person making the transaction, and Divvi will cryptographically ensure they're the one who really consented to it. No fake referrals, no attribution errors.
+
+## Migration from v1 to v2
+
+This is a **breaking change**. The SDK has been updated from v1 to v2 with the following changes:
+
+### What Changed
+
+- `getDataSuffix` has been replaced with `getReferralTag`
+- A new `user` parameter is now **required** in `getReferralTag` to ensure proper referral attribution of the right user
+
+### Migration Steps
+
+1. **Update function imports**: Replace `getDataSuffix` with `getReferralTag` in your imports:
+
+   ```typescript
+   // v1 (OLD)
+   import { getDataSuffix, submitReferral } from '@divvi/referral-sdk'
+
+   // v2 (NEW)
+   import { getReferralTag, submitReferral } from '@divvi/referral-sdk'
+   ```
+
+2. **Update function calls**: Replace all instances of `getDataSuffix` with `getReferralTag` and add the new required `user` parameter for proper attribution:
+
+   ```typescript
+   // v1 (OLD)
+   dataSuffix: `0x${getDataSuffix({ consumer, providers })}`
+
+   // v2 (NEW)
+   dataSuffix: `0x${getReferralTag({ user, consumer, providers })}`
+   ```
+
+   The `user` parameter should be the address of the user making the transaction to ensure accurate referral attribution.
+
+### Example Migration
+
+```typescript
+// v1 Implementation (OLD)
+import { getDataSuffix, submitReferral } from '@divvi/referral-sdk'
+
+const txHash = await walletClient.writeContract({
+  // ... other parameters
+  dataSuffix: `0x${getDataSuffix({ consumer, providers })}`,
+})
+
+// v2 Implementation (NEW)
+import { getReferralTag, submitReferral } from '@divvi/referral-sdk'
+
+const txHash = await walletClient.writeContract({
+  // ... other parameters
+  dataSuffix: `0x${getReferralTag({ user, consumer, providers })}`,
 })
 ```
 
