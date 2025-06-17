@@ -39,7 +39,7 @@ export function getReferralTag({
     }
   })
 
-  // Encode parameters: (address, address[])
+  // Encode parameters: (address, address, address[])
   const encodedData = encodeAbiParameters(
     [{ type: 'address' }, { type: 'address' }, { type: 'address[]' }],
     [user, consumer, providers],
