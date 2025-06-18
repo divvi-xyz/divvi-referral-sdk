@@ -2,7 +2,7 @@ import { decodeAbiParameters, hexToNumber } from 'viem'
 import { getReferralTag as getReferralTagOriginal, submitReferral } from '.'
 import { getReferralTag as getReferralTagViem } from '../test/viemReferenceVersion'
 import { InvalidAddressError, Address } from './types'
-import { DIVVI_MAGIC_PREFIX, REFERRAL_TAG_V2_FORMAT_BYTE } from './constants'
+import { DIVVI_MAGIC_PREFIX, REFERRAL_TAG_FORMAT_1_BYTE } from './constants'
 
 const TEST_USER = '0x9999999999999999999999999999999999999999'
 const TEST_CONSUMER = '0x1234567890123456789012345678901234567890'
@@ -110,7 +110,7 @@ describe.each([
 
       // The format byte should be next
       const formatByte = result.slice(8, 10)
-      expect(formatByte).toBe(REFERRAL_TAG_V2_FORMAT_BYTE)
+      expect(formatByte).toBe(REFERRAL_TAG_FORMAT_1_BYTE)
 
       // The next 4 characters should be the length of the payload
       const payloadLength = result.slice(10, 14)

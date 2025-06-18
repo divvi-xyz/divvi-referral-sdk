@@ -2,7 +2,7 @@
 export const DIVVI_MAGIC_PREFIX = '6decb85d'
 
 /**
- * Format byte for referral tag encoding (v2).
+ * Format byte for referral tag encoding (format 1).
  * Represented as a 2-character hex string (1 byte).
  */
-export const REFERRAL_TAG_V2_FORMAT_BYTE = '01'
+export const REFERRAL_TAG_FORMAT_1_BYTE = '01'

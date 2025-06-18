@@ -7,7 +7,7 @@ import {
   isAddress,
 } from 'viem'
 import { InvalidAddressError, Address } from '../src/types'
-import { REFERRAL_TAG_V2_FORMAT_BYTE } from '../src/constants'
+import { REFERRAL_TAG_FORMAT_1_BYTE } from '../src/constants'
 
 /**
  * @deprecated This function is deprecated and should only be used to validate and compare
@@ -53,7 +53,7 @@ export function getReferralTag({
   // Construct appended data and final calldata
   const appendedData =
     magicPrefixBytes +
-    REFERRAL_TAG_V2_FORMAT_BYTE +
+    REFERRAL_TAG_FORMAT_1_BYTE +
     payloadLengthHex +
     encodedData.slice(2)
   return appendedData

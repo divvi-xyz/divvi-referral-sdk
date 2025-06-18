@@ -1,4 +1,4 @@
-import { DIVVI_MAGIC_PREFIX, REFERRAL_TAG_V2_FORMAT_BYTE } from './constants'
+import { DIVVI_MAGIC_PREFIX, REFERRAL_TAG_FORMAT_1_BYTE } from './constants'
 import { InvalidAddressError, Address } from './types'
 
 // Helper function to validate Ethereum addresses
@@ -84,7 +84,7 @@ export function getReferralTag({
   // Combine all parts
   return (
     DIVVI_MAGIC_PREFIX +
-    REFERRAL_TAG_V2_FORMAT_BYTE +
+    REFERRAL_TAG_FORMAT_1_BYTE +
     payloadLengthHex +
     encodedBytes
   )
