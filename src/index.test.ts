@@ -254,6 +254,44 @@ describe('submitReferral', () => {
     expect(response).toBe(mockResponse)
   })
 
+  it('should make a POST request with the correct parameters for signed message referrals', async () => {
+    // Arrange
+    const mockResponse = new Response(JSON.stringify({ success: true }), {
+      status: 200,
+      headers: { 'Content-Type': 'application/json' },
+    })
+
+    jest.mocked(global.fetch).mockResolvedValueOnce(mockResponse)
+
+    const params = {
+      message:
+        'Divvi Referral Attribution\nReferral Tag: abc123\nTimestamp: 1234567890',
+      signature:
+        '0xabcdef1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef12',
+      chainId: 1,
+    } as const
+
+    // Act
+    const response = await submitReferral(params)
+
+    // Assert
+    expect(global.fetch).toHaveBeenCalledWith(
+      'https://api.divvi.xyz/submitReferral',
+      {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          message: params.message,
+          signature: params.signature,
+          chainId: params.chainId,
+        }),
+      },
+    )
+    expect(response).toBe(mockResponse)
+  })
+
   it('should use a custom baseUrl when provided', async () => {
     // Arrange
     const mockResponse = new Response(JSON.stringify({ success: true }), {
