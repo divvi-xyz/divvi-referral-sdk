@@ -52,7 +52,6 @@ const txHash = await walletClient.writeContract({
   dataSuffix: `0x${getReferralTag({
     user: account, // The user address making the transaction (required)
     consumer: consumerAddress, // The address of the consumer making the call
-    providers: providerAddresses, // Array of provider addresses involved in the referral
   })}`, // Using dataSuffix appends the tag (recommended)
 })
 
@@ -88,14 +87,13 @@ const txHash = await walletClient.sendTransaction({
     getReferralTag({
       user: account, // The user address making the transaction (required)
       consumer: consumerAddress, // The address of the consumer making the call
-      providers: providerAddresses, // Array of provider addresses involved in the referral
     }), // Appending to existing data (recommended)
   value: transactionValue,
   // ... other transaction parameters
 })
 
 // Alternative: You can also include the tag anywhere in the transaction data
-// const referralTag = getReferralTag({ user: account, consumer: consumerAddress, providers: providerAddresses })
+// const referralTag = getReferralTag({ user: account, consumer: consumerAddress })
 // data: someCustomData + referralTag + moreData
 ```
 
@@ -152,10 +150,10 @@ This is a **breaking change**. The SDK has been updated from v1 to v2 with the f
 
    ```typescript
    // v1 (OLD)
-   dataSuffix: `0x${getDataSuffix({ consumer, providers })}`
+   dataSuffix: `0x${getDataSuffix({ consumer })}`
 
    // v2 (NEW)
-   dataSuffix: `0x${getReferralTag({ user, consumer, providers })}`
+   dataSuffix: `0x${getReferralTag({ user, consumer })}`
    ```
 
    The `user` parameter should be the address of the user making the transaction to ensure accurate referral attribution.
@@ -168,7 +166,7 @@ import { getDataSuffix, submitReferral } from '@divvi/referral-sdk'
 
 const txHash = await walletClient.writeContract({
   // ... other parameters
-  dataSuffix: `0x${getDataSuffix({ consumer, providers })}`,
+  dataSuffix: `0x${getDataSuffix({ consumer })}`,
 })
 
 // v2 Implementation (NEW)
@@ -176,7 +174,7 @@ import { getReferralTag, submitReferral } from '@divvi/referral-sdk'
 
 const txHash = await walletClient.writeContract({
   // ... other parameters
-  dataSuffix: `0x${getReferralTag({ user, consumer, providers })}`,
+  dataSuffix: `0x${getReferralTag({ user, consumer })}`,
 })
 ```
 
