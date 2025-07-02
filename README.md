@@ -96,7 +96,6 @@ const [account] = await walletClient.getAddresses()
 const referralTag = getReferralTag({
   user: account, // The user address consenting to the referral (required)
   consumer: consumerAddress, // The address of the consumer
-  providers: providerAddresses, // Array of provider addresses involved in the referral
 })
 
 // Step 2: Create a message containing the referral data
