@@ -1,5 +1,5 @@
 import { DIVVI_MAGIC_PREFIX, REFERRAL_TAG_FORMAT_1_BYTE } from './constants'
-import { InvalidAddressError, Address } from './types'
+import { InvalidAddressError, Address, Hex } from './types'
 
 // Helper function to validate Ethereum addresses
 function isValidAddress(address: string): boolean {
@@ -94,31 +94,53 @@ export function getReferralTag({
  * Posts an attribution event to the tracking API
  *
  * @param params - The parameters for the attribution event
- * @param params.txHash - The transaction hash
+ * @param params.txHash - The transaction hash (for transaction-based referrals)
+ * @param params.message - The signed message (for signed message-based referrals, can be string or Hex)
+ * @param params.signature - The signature of the message (for signed message-based referrals)
  * @param params.chainId - The chain ID
  * @param params.baseUrl - The base URL for the API endpoint (optional)
  * @returns A promise that resolves to the response from the API
  * @throws {Error} Client error (4xx) - When the request fails due to client-side issues
  * @throws {Error} Server error (5xx) - When the request fails due to server-side issues, client should retry the request
  */
-export async function submitReferral({
-  txHash,
-  chainId,
-  baseUrl = 'https://api.divvi.xyz/submitReferral',
-}: {
-  txHash: Address
-  chainId: number
-  baseUrl?: string
-}): Promise<Response> {
+export async function submitReferral(
+  params:
+    | {
+        txHash: Address
+        chainId: number
+        baseUrl?: string
+      }
+    | {
+        message: string | Hex
+        signature: Hex
+        chainId: number
+        baseUrl?: string
+      },
+): Promise<Response> {
+  const { chainId, baseUrl = 'https://api.divvi.xyz/submitReferral' } = params
+
+  let body: object
+  if ('txHash' in params) {
+    // Transaction-based referral
+    body = {
+      txHash: params.txHash,
+      chainId,
+    }
+  } else {
+    // Signed message-based referral
+    body = {
+      message: params.message,
+      signature: params.signature,
+      chainId,
+    }
+  }
+
   const response = await fetch(baseUrl, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
     },
-    body: JSON.stringify({
-      txHash,
-      chainId,
-    }),
+    body: JSON.stringify(body),
   })
 
   if (!response.ok) {
@@ -139,4 +161,4 @@ export async function submitReferral({
 }
 
 // Re-export only the types that are needed for the public API
-export { Address, InvalidAddressError } from './types'
+export { Address, Hex, InvalidAddressError } from './types'

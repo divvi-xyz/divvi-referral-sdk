@@ -1,14 +1,19 @@
 import { Address, createWalletClient, Hex, http, parseUnits } from 'viem'
 import { getReferralTag, submitReferral } from '../src/index'
 import { celo } from 'viem/chains'
-import { privateKeyToAccount } from 'viem/accounts'
+import { mnemonicToAccount } from 'viem/accounts'
 
-// Check for private key in environment
-if (!process.env.PRIVATE_KEY) {
-  throw new Error('Please set PRIVATE_KEY environment variable')
+// Configuration
+const USE_SIGNED_MESSAGE = process.env.USE_SIGNED_MESSAGE === 'true' // Set to 'true' to use signed message approach
+const BASE_URL =
+  process.env.DIVVI_BASE_URL || 'https://api.staging.divvi.xyz/submitReferral'
+
+// Check for mnemonic in environment
+if (!process.env.MNEMONIC) {
+  throw new Error('Please set MNEMONIC environment variable')
 }
 
-const privateKey = process.env.PRIVATE_KEY as Hex
+const mnemonic = process.env.MNEMONIC
 
 // cUSD token contract address on CELO
 const CUSD_ADDRESS = '0x765DE816845861e75A25fCA122bb6898B8B1282a'
@@ -33,9 +38,15 @@ const STAGING_REWARDS_CONSUMER_PROVIDER_PAIRS: {
     providers: ['0x644b896b0c45717215c0f10501b20fafd9bceb24'],
   },
 ]
+
 async function main() {
+  console.log(
+    `Using ${USE_SIGNED_MESSAGE ? 'signed message' : 'transaction'} approach`,
+  )
+  console.log(`Base URL: ${BASE_URL}`)
+
   // Create wallet client
-  const account = privateKeyToAccount(privateKey)
+  const account = mnemonicToAccount(mnemonic)
   const walletClient = createWalletClient({
     account,
     chain: celo,
@@ -46,44 +57,76 @@ async function main() {
   const consumerAddress = STAGING_REWARDS_CONSUMER_PROVIDER_PAIRS[0].consumer
   const providerAddresses = STAGING_REWARDS_CONSUMER_PROVIDER_PAIRS[0].providers
 
+  // Get chain ID
+  const chainId = await walletClient.getChainId()
+
+  // Generate referral tag
+  const referralTag = getReferralTag({
+    user: account.address,
+    consumer: consumerAddress,
+    providers: providerAddresses,
+  })
+
   try {
-    // Step 1: Send cUSD transaction with referral data
-    const txHash = await walletClient.writeContract({
-      address: CUSD_ADDRESS,
-      abi: [
-        {
-          inputs: [
-            { name: 'to', type: 'address' },
-            { name: 'value', type: 'uint256' },
-          ],
-          name: 'transfer',
-          outputs: [{ name: '', type: 'bool' }],
-          stateMutability: 'nonpayable',
-          type: 'function',
-        },
-      ],
-      functionName: 'transfer',
-      args: [consumerAddress, parseUnits('0.001', 18)], // 0.001 cUSD
-      dataSuffix: `0x${getReferralTag({
-        user: account.address,
-        consumer: consumerAddress,
-        providers: providerAddresses,
-      })}`,
-    })
+    if (!USE_SIGNED_MESSAGE) {
+      // Transaction-based approach (existing)
+      console.log('Creating transaction with referral data...')
 
-    console.log('Transaction sent:', txHash)
+      const txHash = await walletClient.writeContract({
+        address: CUSD_ADDRESS,
+        abi: [
+          {
+            inputs: [
+              { name: 'to', type: 'address' },
+              { name: 'value', type: 'uint256' },
+            ],
+            name: 'transfer',
+            outputs: [{ name: '', type: 'bool' }],
+            stateMutability: 'nonpayable',
+            type: 'function',
+          },
+        ],
+        functionName: 'transfer',
+        args: [account.address, parseUnits('0.001', 18)], // 0.001 cUSD
+        dataSuffix: `0x${referralTag}`,
+      })
 
-    // Step 2: Get chain ID
-    const chainId = await walletClient.getChainId()
+      console.log('Transaction sent:', txHash)
 
-    // Step 3: Submit referral
-    await submitReferral({
-      txHash,
-      chainId,
-      baseUrl: 'https://api.staging.divvi.xyz/submitReferral', // remove this if you want to use the production contract
-    })
+      // Submit transaction referral
+      await submitReferral({
+        txHash,
+        chainId,
+        baseUrl: BASE_URL,
+      })
 
-    console.log('Referral submitted successfully')
+      console.log('Transaction referral submitted successfully')
+    } else {
+      // Signed message approach
+      console.log('Creating signed message for referral...')
+
+      // Create a message containing the referral data
+      const message = `Divvi Referral Attribution\nReferral Tag: ${referralTag}\nChain ID: ${chainId}\nTimestamp: ${Date.now()}`
+
+      console.log('Message to sign:', message)
+
+      // Sign the message
+      const signature = await walletClient.signMessage({
+        message,
+      })
+
+      console.log('Message signature:', signature)
+
+      // Submit signed message referral
+      await submitReferral({
+        message,
+        signature,
+        chainId,
+        baseUrl: BASE_URL,
+      })
+
+      console.log('Signed message referral submitted successfully')
+    }
   } catch (error) {
     console.error('Error:', error)
   }

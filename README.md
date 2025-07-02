@@ -5,6 +5,7 @@ The Divvi referral ecosystem enables decentralized applications to implement and
 With this SDK, dApps can:
 
 - Attribute on-chain transactions to specific referrers
+- Submit off-chain referral attributions via signed messages (for cash-in flows, etc.)
 
 For more information about the Divvi ecosystem, visit our [documentation](https://docs.divvi.xyz/).
 
@@ -14,21 +15,28 @@ For more information about the Divvi ecosystem, visit our [documentation](https:
 yarn add @divvi/referral-sdk
 ```
 
-## Usage
+## Overview
 
 The SDK provides two main functions:
 
-1. `getReferralTag` - Generates a hex string tag to include in transaction calldata for tracking referrals (appending is recommended).
-2. `submitReferral` - Reports the transaction to the attribution tracking API
+1. `getReferralTag` - Generates a hex string tag containing referral metadata
+2. `submitReferral` - Reports referral events to the attribution tracking API
 
-### Complete Referral Flow
+Divvi supports two referral submission methods:
 
-- Identify an appropriate transaction in your codebase to include the referral tag
-  - The transaction must be a state changing function like transfer
-  - The transaction should be towards the beginning of the user journey
-- Include the referral tag in your transaction data (appending is recommended) and call submitReferral with the transaction hash
+### 1. On-Chain Transactions
 
-Here's how to implement the complete referral flow in your application:
+Include the referral tag in transaction calldata, then submit the transaction hash to the API for tracking.
+
+### 2. Off-Chain Signed Messages
+
+Submit referrals without requiring on-chain transactions - perfect for cash-in flows, airdrops, or other off-chain activities.
+
+## Referral Submission Methods
+
+### Method 1: On-Chain Transaction Referrals
+
+This is the traditional method where referral data is embedded in transaction calldata.
 
 ```typescript
 import { getReferralTag, submitReferral } from '@divvi/referral-sdk'
@@ -65,6 +73,61 @@ await submitReferral({
 })
 ```
 
+### Method 2: Off-Chain Signed Message Referrals
+
+This method enables referral attribution without requiring on-chain transactions, perfect for cash-in flows, airdrops, or other off-chain activities.
+
+> **⚠️ IMPORTANT PRIVACY NOTICE**
+>
+> The clear text of signed messages will be recorded on the Optimism blockchain when registered in the DivviRegistry contract and will be publicly visible. **Never include private information, personal data, or sensitive details in signed messages.** Only include information that you're comfortable being publicly accessible.
+
+```typescript
+import { getReferralTag, submitReferral } from '@divvi/referral-sdk'
+import { createWalletClient, custom } from 'viem'
+import { mainnet } from 'viem/chains'
+
+const walletClient = createWalletClient({
+  chain: mainnet,
+  transport: custom(window.ethereum),
+})
+const [account] = await walletClient.getAddresses()
+
+// Step 1: Generate the referral tag
+const referralTag = getReferralTag({
+  user: account, // The user address consenting to the referral (required)
+  consumer: consumerAddress, // The address of the consumer
+})
+
+// Step 2: Create a message containing the referral data
+// RECOMMENDED: Reuse existing signed messages from your app (e.g., SIWE authentication)
+// and embed the referral tag. You can use any message format - the referral tag just needs to be embedded.
+
+// Example: Creating a new message with referral data
+const message = `Divvi Referral Attribution
+Referral Tag: ${referralTag}
+Timestamp: ${Date.now()}`
+
+// Alternative: Embed in existing authentication message (SIWE, etc.)
+// const message = `${yourExistingAuthMessage}\nReferral Tag: ${referralTag}`
+
+// Step 3: Sign the message
+const signature = await walletClient.signMessage({
+  message,
+})
+
+// Step 4: Get the current chain ID
+const chainId = await walletClient.getChainId()
+
+// Step 5: Submit the signed message referral
+await submitReferral({
+  message, // Can be a string or hex
+  signature, // The signature from step 3
+  chainId,
+})
+```
+
+## Advanced Usage Examples
+
 ### Using getReferralTag with viem's sendTransaction
 
 ```typescript
@@ -97,33 +160,38 @@ const txHash = await walletClient.sendTransaction({
 // data: someCustomData + referralTag + moreData
 ```
 
-### Using submitReferral
+## Signed Message Support
 
-```typescript
-import { submitReferral } from '@divvi/referral-sdk'
+For off-chain signed message referrals, the Divvi tracking API supports comprehensive signature verification:
 
-// Report transaction for attribution tracking
-await submitReferral({
-  txHash, // Transaction hash from writeContract or sendTransaction
-  chainId, // Chain ID from your client
-  // Optional: custom API endpoint
-  // baseUrl: 'https://your-custom-endpoint.com'
-})
-```
+- **EOA Signatures**: Standard ECDSA signatures from externally owned accounts
+- **EIP-1271 Signatures**: Smart contract wallet signatures (Safe, Account Abstraction, etc.)
+- **Multiple Message Formats**:
+  - UTF-8 messages with embedded referral tags
+  - Hex-prefixed messages
+  - Custom message formats (as long as the referral tag is embedded)
 
 ## Why the `user` Parameter Matters
 
-The `user` parameter is crucial because Divvi cryptographically verifies that the user you specify is actually the one who consented to the transaction. This prevents fake referrals and ensures accurate attribution.
+The `user` parameter is crucial because Divvi cryptographically verifies that the user you specify is actually the one who consented to the transaction or signed the message. This prevents fake referrals and ensures accurate attribution.
 
 Here's how it works:
 
-**For regular wallets (EOAs):** We check that `user` matches who actually sent the transaction (`tx.from`).
+**For on-chain transactions:**
 
-**For smart accounts:** We're smarter about verification and can handle more complex scenarios like Account Abstraction wallets or Safe multisigs. The system automatically detects the transaction type and applies the right verification method.
+- **Regular wallets (EOAs):** We check that `user` matches who actually sent the transaction (`tx.from`).
+- **Smart accounts:** We're smarter about verification and can handle more complex scenarios like Account Abstraction wallets or Safe multisigs.
 
-This means you get **accurate referral tracking** regardless of whether your users have simple wallets or more advanced smart account setups. If you're using a custom smart account architecture and verification fails, reach out to us - we can add support for additional patterns as needed.
+**For off-chain signed messages:**
 
-**Bottom line:** Set the `user` parameter to the actual person making the transaction, and Divvi will cryptographically ensure they're the one who really consented to it. No fake referrals, no attribution errors.
+- We verify that the `user` address actually signed the message containing the referral tag.
+- Supports both EOA signatures and EIP-1271 smart contract signatures.
+
+This means you get **accurate referral tracking** regardless of whether your users have simple wallets or more advanced smart account setups, and whether they're making on-chain transactions or off-chain commitments.
+
+Note: If you're using a custom smart account architecture and verification fails, reach out to us - we can add support for additional patterns as needed.
+
+**Bottom line:** Set the `user` parameter to the actual person making the transaction or signing the message, and Divvi will cryptographically ensure they're the one who really consented to it. No fake referrals, no attribution errors.
 
 ## Migration from v1 to v2
 
