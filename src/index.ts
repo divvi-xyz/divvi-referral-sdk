@@ -141,7 +141,7 @@ export async function submitReferral(
     'Content-Type': 'application/json',
   }
   if (params.divviApiKey) {
-    headers['X-Divvi-API-Key'] = params.divviApiKey
+    headers['X-Divvi-Api-Key'] = params.divviApiKey
   }
 
   const response = await fetch(baseUrl, {
