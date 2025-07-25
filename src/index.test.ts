@@ -340,7 +340,7 @@ describe('submitReferral', () => {
       'https://api.divvi.xyz/submitReferral',
       expect.objectContaining({
         headers: expect.objectContaining({
-          'X-Divvi-API-Key': '1234567890',
+          'X-Divvi-Api-Key': '1234567890',
         }),
       }),
     )
