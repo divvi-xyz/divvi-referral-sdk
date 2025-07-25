@@ -317,6 +317,35 @@ describe('submitReferral', () => {
     )
   })
 
+  it('should use a Divvi API key when provided', async () => {
+    // Arrange
+    const mockResponse = new Response(JSON.stringify({ success: true }), {
+      status: 200,
+      headers: { 'Content-Type': 'application/json' },
+    })
+
+    jest.mocked(global.fetch).mockResolvedValueOnce(mockResponse)
+
+    const params = {
+      txHash: '0x1234567890123456789012345678901234567890',
+      chainId: 1,
+      divviApiKey: '1234567890',
+    } as const
+
+    // Act
+    await submitReferral(params)
+
+    // Assert
+    expect(global.fetch).toHaveBeenCalledWith(
+      'https://api.divvi.xyz/submitReferral',
+      expect.objectContaining({
+        headers: expect.objectContaining({
+          'X-Divvi-API-Key': '1234567890',
+        }),
+      }),
+    )
+  })
+
   it('should throw an error when the API response is not ok', async () => {
     // Arrange
     const mockResponse = new Response('Bad Request', {
