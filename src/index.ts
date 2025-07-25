@@ -109,12 +109,14 @@ export async function submitReferral(
         txHash: Address
         chainId: number
         baseUrl?: string
+        divviApiKey?: string
       }
     | {
         message: string | Hex
         signature: Hex
         chainId: number
         baseUrl?: string
+        divviApiKey?: string
       },
 ): Promise<Response> {
   const { chainId, baseUrl = 'https://api.divvi.xyz/submitReferral' } = params
@@ -135,11 +137,16 @@ export async function submitReferral(
     }
   }
 
+  const headers: Record<string, string> = {
+    'Content-Type': 'application/json',
+  }
+  if (params.divviApiKey) {
+    headers['X-Divvi-Api-Key'] = params.divviApiKey
+  }
+
   const response = await fetch(baseUrl, {
     method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-    },
+    headers,
     body: JSON.stringify(body),
   })
 
