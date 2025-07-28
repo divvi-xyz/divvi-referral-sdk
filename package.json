@@ -39,7 +39,7 @@
     "@typescript-eslint/eslint-plugin": "^5.62.0",
     "@valora/eslint-config-typescript": "^1.1.32",
     "@valora/prettier-config": "^0.0.1",
-    "conventional-changelog-conventionalcommits": "^8.0.0",
+    "conventional-changelog-conventionalcommits": "^9.1.0",
     "eslint": "^8.57.1",
     "eslint-plugin-import": "^2.32.0",
     "eslint-plugin-jest": "^28.14.0",
