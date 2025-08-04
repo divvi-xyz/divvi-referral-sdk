@@ -35,7 +35,7 @@
   "license": "MIT",
   "devDependencies": {
     "@types/jest": "^29.5.14",
-    "@types/node": "^18.19.120",
+    "@types/node": "^18.19.121",
     "@typescript-eslint/eslint-plugin": "^5.62.0",
     "@valora/eslint-config-typescript": "^1.1.32",
     "@valora/prettier-config": "^0.0.1",
@@ -53,7 +53,7 @@
     "ts-jest": "^29.4.0",
     "ts-node": "^10.9.2",
     "typescript": "^5.8.3",
-    "viem": "^2.33.0"
+    "viem": "^2.33.2"
   },
   "prettier": "@valora/prettier-config",
   "release": {
