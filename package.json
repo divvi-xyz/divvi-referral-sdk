@@ -34,7 +34,7 @@
   "author": "Divvi",
   "license": "MIT",
   "devDependencies": {
-    "@types/jest": "^29.5.14",
+    "@types/jest": "^30.0.0",
     "@types/node": "^18.19.123",
     "@typescript-eslint/eslint-plugin": "^5.62.0",
     "@valora/eslint-config-typescript": "^1.1.35",
@@ -46,7 +46,7 @@
     "eslint-plugin-react": "^7.37.5",
     "eslint-plugin-react-hooks": "^5.2.0",
     "eslint-plugin-react-native": "^5.0.0",
-    "jest": "^29.7.0",
+    "jest": "^30.0.5",
     "knip": "^5.63.0",
     "prettier": "^3.6.2",
     "semantic-release": "^24.2.7",
