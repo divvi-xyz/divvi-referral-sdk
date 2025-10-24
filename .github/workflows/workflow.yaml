@@ -70,7 +70,8 @@ jobs:
       contents: write # to be able to publish a GitHub release
       issues: write # to be able to comment on released issues
       pull-requests: write # to be able to comment on released pull requests
-      id-token: write # to enable use of OIDC for npm provenance
+      id-token: write # to enable use of OIDC for npm trusted publishing and provenance
+    environment: ${{ github.ref == 'refs/heads/main' && 'npm-publish' || null }} # extra protection for publishing to npm
     steps:
       - uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
         with:
@@ -84,7 +85,6 @@ jobs:
         uses: google-github-actions/get-secretmanager-secrets@bc9c54b29fdffb8a47776820a7d26e77b379d262 # v3.0.0
         with:
           secrets: |-
-            NPM_TOKEN:celo-mobile-mainnet/NPM_TOKEN
             SLACK_WEBHOOK_URL:celo-mobile-mainnet/SLACK_ONCALL_WEBHOOK_URL
       - run: yarn
       - name: Publish to NPM
@@ -100,7 +100,6 @@ jobs:
           fi
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          NPM_TOKEN: ${{ steps.google-secrets.outputs.NPM_TOKEN }}
       - uses: ravsamhq/notify-slack-action@be814b201e233b2dc673608aa46e5447c8ab13f2 # 2.5.0
         if: ${{ !cancelled() && github.ref == 'refs/heads/main' }}
         with:
