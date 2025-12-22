@@ -37,7 +37,7 @@
     "@types/jest": "^30.0.0",
     "@types/node": "^18.19.130",
     "@typescript-eslint/eslint-plugin": "^5.62.0",
-    "@valora/eslint-config-typescript": "^1.1.50",
+    "@valora/eslint-config-typescript": "^1.1.51",
     "@valora/prettier-config": "^0.0.1",
     "conventional-changelog-conventionalcommits": "^9.1.0",
     "eslint": "^8.57.1",
@@ -47,13 +47,13 @@
     "eslint-plugin-react-hooks": "^5.2.0",
     "eslint-plugin-react-native": "^5.0.0",
     "jest": "^30.2.0",
-    "knip": "^5.73.3",
+    "knip": "^5.75.1",
     "prettier": "^3.7.4",
     "semantic-release": "^25.0.2",
     "ts-jest": "^29.4.6",
     "ts-node": "^10.9.2",
     "typescript": "^5.9.3",
-    "viem": "^2.41.2"
+    "viem": "^2.43.2"
   },
   "prettier": "@valora/prettier-config",
   "release": {
