@@ -4680,10 +4680,10 @@ keyv@^4.5.3:
   dependencies:
     json-buffer "3.0.1"
 
-knip@^5.78.0:
-  version "5.79.0"
-  resolved "https://registry.yarnpkg.com/knip/-/knip-5.79.0.tgz#aee9ee4a150615ab04f4d758252e31cacbf6e220"
-  integrity sha512-rcg+mNdqm6UiTuRVyy6UuuHw1n4ABMpNXDtrfGaCeUtJoRBAvAENIebr8YMtOz6XE7iVHZ8+rY7skgEtosczhQ==
+knip@^5.80.1:
+  version "5.80.2"
+  resolved "https://registry.yarnpkg.com/knip/-/knip-5.80.2.tgz#80a05196646c8c1d03b30b8f1b70f24445c5467d"
+  integrity sha512-Yt7iF8Uzl7pp3mGA6yvum6PZBcbGhjasZYuqIwcIAX1jsIhGRUAK0icP0qrB6FSPBI3BpIeMHl7n9meCLO6ovg==
   dependencies:
     "@nodelib/fs.walk" "^1.2.3"
     fast-glob "^3.3.3"
@@ -5527,10 +5527,10 @@ own-keys@^1.0.1:
     object-keys "^1.1.1"
     safe-push-apply "^1.0.0"
 
-ox@0.11.1:
-  version "0.11.1"
-  resolved "https://registry.yarnpkg.com/ox/-/ox-0.11.1.tgz#ee1d1b88e794533db244e90bf7fb3863293169f3"
-  integrity sha512-1l1gOLAqg0S0xiN1dH5nkPna8PucrZgrIJOfS49MLNiMevxu07Iz4ZjuJS9N+xifvT+PsZyIptS7WHM8nC+0+A==
+ox@0.11.3:
+  version "0.11.3"
+  resolved "https://registry.yarnpkg.com/ox/-/ox-0.11.3.tgz#f50be1cae88822f5111b1e3f4a324c4c07eed422"
+  integrity sha512-1bWYGk/xZel3xro3l8WGg6eq4YEKlaqvyMtVhfMFpbJzK2F6rj4EDRtqDCWVEJMkzcmEi9uW2QxsqELokOlarw==
   dependencies:
     "@adraffy/ens-normalize" "^1.11.0"
     "@noble/ciphers" "^1.3.0"
@@ -7137,10 +7137,10 @@ validate-npm-package-name@^6.0.0, validate-npm-package-name@^6.0.2:
   resolved "https://registry.yarnpkg.com/validate-npm-package-name/-/validate-npm-package-name-6.0.2.tgz#4e8d2c4d939975a73dd1b7a65e8f08d44c85df96"
   integrity sha512-IUoow1YUtvoBBC06dXs8bR8B9vuA3aJfmQNKMoaPG/OFsPmoQvw8xh+6Ye25Gx9DQhoEom3Pcu9MKHerm/NpUQ==
 
-viem@^2.43.4:
-  version "2.43.5"
-  resolved "https://registry.yarnpkg.com/viem/-/viem-2.43.5.tgz#450529892ee106132e9aa45bfc11e2641624190f"
-  integrity sha512-QuJpuEMEPM3EreN+vX4mVY68Sci0+zDxozYfbh/WfV+SSy/Gthm74PH8XmitXdty1xY54uTCJ+/Gbbd1IiMPSA==
+viem@^2.44.0:
+  version "2.44.1"
+  resolved "https://registry.yarnpkg.com/viem/-/viem-2.44.1.tgz#7ada715b4dc704b25a7826466b8563c9100f674c"
+  integrity sha512-wfQda7PIJeF9hWiGKV628AfBwyYxyoc89OcgF4s4/chs2PY8ibUA7IG+DWdU4oAkjhHm9w47w1m2dwwOPBU+ng==
   dependencies:
     "@noble/curves" "1.9.1"
     "@noble/hashes" "1.8.0"
@@ -7148,7 +7148,7 @@ viem@^2.43.4:
     "@scure/bip39" "1.6.0"
     abitype "1.2.3"
     isows "1.0.7"
-    ox "0.11.1"
+    ox "0.11.3"
     ws "8.18.3"
 
 walk-up-path@^4.0.0:
